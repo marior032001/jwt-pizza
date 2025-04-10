@@ -4,23 +4,26 @@
 
 As part of `Deliverable ⓵ Development deployment: JWT Pizza`, start up the application and debug through the code until you understand how it works. During the learning process fill out the following required pieces of information in order to demonstrate that you have successfully completed the deliverable.
 
-| User activity                                       | Frontend component | Backend endpoints | Database SQL |
-| --------------------------------------------------- | ------------------ | ----------------- | ------------ |
-| View home page                                      |                    |                   |              |
-| Register new user<br/>(t@jwt.com, pw: test)         |                    |                   |              |
-| Login new user<br/>(t@jwt.com, pw: test)            |                    |                   |              |
-| Order pizza                                         |                    |                   |              |
-| Verify pizza                                        |                    |                   |              |
-| View profile page                                   |                    |                   |              |
-| View franchise<br/>(as diner)                       |                    |                   |              |
-| Logout                                              |                    |                   |              |
-| View About page                                     |                    |                   |              |
-| View History page                                   |                    |                   |              |
-| Login as franchisee<br/>(f@jwt.com, pw: franchisee) |                    |                   |              |
-| View franchise<br/>(as franchisee)                  |                    |                   |              |
-| Create a store                                      |                    |                   |              |
-| Close a store                                       |                    |                   |              |
-| Login as admin<br/>(a@jwt.com, pw: admin)           |                    |                   |              |
-| View Admin page                                     |                    |                   |              |
-| Create a franchise for t@jwt.com                    |                    |                   |              |
-| Close the franchise for t@jwt.com                   |                    |                   |              |
+
+
+
+| User activity                                       | Frontend component           | Backend endpoints                              | Database SQL                                                                                                                                               |
+| -------------------------------------------------- | ----------------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| View home page                                     | `Home.jsx`                    | none                                            | none                                                                                                                                                       |
+| Register new user<br/>(t@jwt.com, pw: test)        | `Register.jsx`                | `[POST] /api/auth`                              | `INSERT INTO user (name, email, password) VALUES (?, ?, ?);`<br>`INSERT INTO userRole (userId, role, objectId) VALUES (?, 'diner', NULL);`                 |
+| Login new user<br/>(t@jwt.com, pw: test)           | `Login.jsx`                   | `[PUT] /api/auth`                               | `SELECT * FROM user WHERE email = ?;`                                                                                                                      |
+| Order pizza                                        | `Menu.jsx`, `Cart.jsx`        | `[POST] /api/order`                             | `INSERT INTO \`order\` (dinerId, franchiseId, storeId, date) VALUES (?, ?, ?, ?);`<br>`INSERT INTO orderItem (orderId, menuId, description, price) VALUES (?, ?, ?, ?);` |
+| Verify pizza                                       | `OrderConfirmation.jsx`       | `[GET] /api/order/:orderId`                     | `SELECT * FROM \`order\` WHERE id = ?;`<br>`SELECT * FROM orderItem WHERE orderId = ?;`                                                                    |
+| View profile page                                  | `Profile.jsx`                 | `[GET] /api/auth/:userId`                       | `SELECT * FROM user WHERE id = ?;`                                                                                                                         |
+| View franchise<br/>(as diner)                      | `Franchise.jsx`               | `[GET] /api/franchise`                          | `SELECT * FROM franchise;`                                                                                                                                |
+| Logout                                             | `NavBar.jsx`                  | `[DELETE] /api/auth`                            | none                                                                                                                                                       |
+| View About page                                    | `About.jsx`                   | none                                            | none                                                                                                                                                       |
+| View History page                                  | `History.jsx`                 | `[GET] /api/order/history`                      | `SELECT * FROM \`order\` WHERE dinerId = ?;`                                                                                                               |
+| Login as franchisee<br/>(f@jwt.com, pw: franchisee)| `Login.jsx`                   | `[PUT] /api/auth`                               | `SELECT * FROM user WHERE email = ?;`                                                                                                                      |
+| View franchise<br/>(as franchisee)                 | `Franchise.jsx`               | `[GET] /api/franchise/:franchiseId`             | `SELECT * FROM franchise WHERE id = ?;`                                                                                                                    |
+| Create a store                                     | `CreateStore.jsx`             | `[POST] /api/franchise/:franchiseId/store`      | `INSERT INTO store (franchiseId, name, location) VALUES (?, ?, ?);`                                                                                       |
+| Close a store                                      | `ManageStore.jsx`             | `[DELETE] /api/franchise/:franchiseId/store/:id`| `DELETE FROM store WHERE id = ?;`                                                                                                                         |
+| Login as admin<br/>(a@jwt.com, pw: admin)          | `Login.jsx`                   | `[PUT] /api/auth`                               | `SELECT * FROM user WHERE email = ?;`                                                                                                                      |
+| View Admin page                                    | `AdminDashboard.jsx`          | `[GET] /api/admin`                              | Various `SELECT` queries for admin data                                                                                                                    |
+| Create a franchise for t@jwt.com                   | `AdminDashboard.jsx`          | `[POST] /api/franchise`                         | `INSERT INTO franchise (name, ownerId) VALUES (?, ?);`                                                                                                     |
+| Close the franchise for t@jwt.com                  | `AdminDashboard.jsx`          | `[DELETE] /api/franchise/:franchiseId`          | `DELETE FROM franchise WHERE id = ?;`                                                                                                                     |
