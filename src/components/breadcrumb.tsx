@@ -6,6 +6,7 @@ interface Props {
   location: string;
 }
 
+
 export default function Breadcrumb(props: Props) {
   let currentPath = '';
   const paths = props.location.split('/').map((path) => {
