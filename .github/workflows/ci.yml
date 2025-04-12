@@ -4,48 +4,50 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
+  pull_request:
+
 jobs:
-  build:
-    name: Build
+  test:
+    name: Run Tests and Generate Coverage
     runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.set_version.outputs.version }}
+
     steps:
-      - name: Checkout repo
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22.x'
+          node-version: '20'
 
-      - name: set version
-        id: set_version
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Install jq and bc
+        run: sudo apt-get install -y jq bc
+
+      - name: Run Tests with Coverage
         run: |
-          version=$(date +'%Y%m%d.%H%M%S')
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          printf '{"version": "%s" }' "$version" > public/version.json
+          npx nyc --reporter=json-summary --reporter=text npx playwright test
 
-      - name: Build
-        run: |
-          npm ci && npm run build
-          cp dist/index.html dist/404.html
-
-      - name: Update pages artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Upload HTML Test Report
+        if: always()
+        uses: actions/upload-artifact@v3
         with:
-          path: dist/
-  deploy:
-    needs: build
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          name: playwright-report
+          path: playwright-report/
+
+      - name: Upload Coverage Report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-summary
+          path: coverage/coverage-summary.json
+
+      - name: Update coverage
+        run: |
+          coverage=$(jq '.total.lines.pct' coverage/coverage-summary.json)
+          color=$(echo "$coverage < 80" | bc -l | awk '{if ($1) print "red"; else print "green"}')
+          curl -s -X POST "https://badge.cs329.click/badge/${{ github.repository_owner }}/jwtpizzacoverage?label=Coverage&value=$coverage%25&color=$color" \
+            -H "authorization: bearer ${{ secrets.FACTORY_API_KEY }}" \
+            -o /dev/null
