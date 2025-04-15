@@ -62,7 +62,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: package
-          ath: dist/
+          path: dist/
         
       - name: Push to AWS S3
         run: |
